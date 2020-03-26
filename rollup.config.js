@@ -1,32 +1,26 @@
 
-// import { uglify } from "rollup-plugin-uglify";
+import { uglify } from "rollup-plugin-uglify";
 import progress from "rollup-plugin-progress";
 
-const production = !process.env.ROLLUP_WATCH;
+// const production = !process.env.ROLLUP_WATCH;
+const production = false;
 
-const devOutput = {
-    // file: "./dist/dill.js",
-    format: "cjs",
-    sourcemap: true
+const output = {
+    file: production
+        ? "./dist/dillx.min.js"
+        : "./dist/dillx.js",
+    format: "esm",
+    sourcemap: !production
 };
 
-// production && (devOutput.globals = {});
-// production && (devOutput.globals["../common/logger.service"] = "logger");
-
-devOutput.file = production ? "./dist/dill.min.js" : "./dist/dill.js";
-// production && (devOutput.file = "./dist/dill.min.js")
-
 export default {
-    input: [production ? "./src/goose/main.js" : "./src/main.js"],
-    output: devOutput,
+    input: "./src/main.js",
+    output,
     plugins: [
         progress(),
-        // production && uglify()
+        production && uglify()
     ],
     watch: {
-// According to the latest: https://github.com/rollup/rollup/issues/1828, the following line will not work, i.e the file will not be watched.
-// Manually restart the process when you update the afs-services
-        // include: "../afs-services/index.js",
         exclude: "node_modules/**"
     }
 };

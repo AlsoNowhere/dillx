@@ -17,7 +17,17 @@ export var createComponent = function(template){
         element.attributes["dill-isolate"] ? undefined : parentData
     );
     template.data._template = element.innerHTML;
-    element.innerHTML = template._module.components[name].template;
+
+    forReverseEach(element.children,function(child){
+        element.removeChild(child);
+    });
+    if (!(template._module.components[name].template instanceof Array)) {
+        template._module.components[name].template = [template._module.components[name].template];
+    }
+    template._module.components[name].template.forEach(function(x){
+        element.appendChild(x);
+    });
+
     if (element.attributes["dill-isolate"]) {
         element.removeAttribute("dill-isolate");
     }
@@ -31,7 +41,7 @@ export var createComponent = function(template){
     
     forReverseEach(element.attributes,function(attribute){
         var name = attribute.nodeName;
-        if (name.substr(0,1) === "#") {
+        if (name.substr(0,1) === "$") {
             template.data[name.substring(1,name.length)] = element;
         }
         else if (isSurroundedBy(attribute.nodeValue,"'")) {

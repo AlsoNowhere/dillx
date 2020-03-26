@@ -1,5 +1,6 @@
 
-export var Module = function(name, components){
+// export
+var Module = function(name, components){
     this.name = name;
     this.components = components;
     this.setComponent = function(Component){
@@ -12,3 +13,5 @@ export var Module = function(name, components){
         return this;
     }
 }
+
+export var dillModule = new Module("",{});

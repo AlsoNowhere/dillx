@@ -17,8 +17,8 @@ export var renderAttributes = function(template){
     forEach(template.attributes,function(attribute){
         var name;
         var value;
-        if (attribute.name.substr(0,1) === attributeSpecialCharacter) {
-            name = attribute.name.replace(attributeSpecialCharacter,"");
+        if (attribute.name.substr(attribute.name.length-1) === attributeSpecialCharacter) {
+            name = attribute.name.substring(0,attribute.name.length-1);
             value = resolveData(data,attribute.value);
             if (elementProperties.indexOf(name) > -1) {
                 element[name] = value;
