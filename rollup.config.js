@@ -1,24 +1,14 @@
 
-import { uglify } from "rollup-plugin-uglify";
-import progress from "rollup-plugin-progress";
-
-// const production = !process.env.ROLLUP_WATCH;
-const production = false;
-
-const output = {
-    file: production
-        ? "./dist/dillx.min.js"
-        : "./dist/dillx.js",
-    format: "esm",
-    sourcemap: !production
-};
+import resolve from "@rollup/plugin-node-resolve";
 
 export default {
     input: "./src/main.js",
-    output,
+    output: {
+        file: "./dist/dillx.js",
+        format: "esm"
+    },
     plugins: [
-        progress(),
-        production && uglify()
+        resolve()
     ],
     watch: {
         exclude: "node_modules/**"

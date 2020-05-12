@@ -1,21 +1,22 @@
 
-import { create } from "./create/create";
-import { change } from "./change/change";
-import { Component } from "./component/component";
-import { reset } from "./reset/reset";
-import { createElementTemplate } from "./template/create-element-template";
+import { Template, Component, apps } from "dill-core";
 
-var Dillx = function(){
-	this.template = createElementTemplate;
-	this.create = create;
-	this.change = change;
-	this.Component = Component;
-	this.reset = reset;
+import { change } from "./render/change";
+
+import { createDillxApp } from "./create/create-dillx-app";
+import { createDillxTemplate } from "./create/create-dillx-template";
+
+const Dillx = function(){
+    this.change = change;
+    this.Template = Template;
+    this.Component = Component;
+    this.create = createDillxApp;
+    this.template = createDillxTemplate;
+    this.apps = apps;
 };
 
-// ESM | mode
-window.dillx = new Dillx();
-export default new Dillx();
+const dillx = new Dillx();
 
-// script src | mode
-// window.dill = new Dill();
+window.dill = dillx;
+window.dillx = dillx;
+export default dillx;

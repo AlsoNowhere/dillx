@@ -1,54 +1,39 @@
 
-import { forEach } from "../common/for-each";
-import { deBracer } from "./de-bracer";
-import { renderAttributes } from "./render-attributes/render-attributes";
-import { renderIf } from "./render-attributes/render-if";
-import { renderFor } from "./render-attributes/render-for";
-import { renderDillTemplate } from "./render-attributes/render-dill-template";
+import { forEach } from "sage";
 
-// -- Development only --
-// var limit = 0;
-// /-- Development only --
+import { deBracer } from "dill-core";
 
-export var render = function(template,index){
+import { renderAttributes } from "./render-attributes";
+import { renderComponentAttributes } from "./render-component.attributes";
 
-// -- Development only --
-// Prevent and infinite loop
-    // limit++;
-    // if (limit > 500) {
-    //     return console.log("Limit reached");
-    // }
-// /-- Development only --
+export const render = template => {
 
-    var data = template.data;
-    var element = template.element;
-    var ifResult;
+    const {element,text,data,component,childTemplates} = template;
+    
+    // console.log("Render: ", template);
 
-    if (template.name === "#comment" || template.name === "SCRIPT") {
-        return;
-    }
-
-    if (template.name === "#text") {
-        element.nodeValue = deBracer(template.textValue,data);
-        return;
-    }
-
-    if (template.if) {
-        ifResult = renderIf(template,index);
-        if (typeof ifResult === "number") {
-            return ifResult;
+    if (text) {
+        const previousValue = element.nodeValue;
+        const newValue = deBracer(text,data);
+        if (previousValue !== newValue) {
+            element.nodeValue = newValue;
         }
+        return;
     }
 
-    if (template.for) {
-        return renderFor(template,index);
+    let continueRendering = true;
+
+    if (element) {
+        continueRendering = renderAttributes(template);
+    }
+    else if (component) {
+        continueRendering = renderComponentAttributes(template);
+        template.data.hasOwnProperty("onchange") && template.data.onchange();
     }
 
-    renderDillTemplate(template);
+    if (!continueRendering) {
+        return;
+    }
 
-    renderAttributes(template);
-
-    template.childTemplates && forEach(template.childTemplates,function(x,i){
-        render(x,i);
-    });
+    childTemplates && forEach(childTemplates,render);
 }
