@@ -2,43 +2,49 @@
 import { reverseForEach } from "sage";
 
 import { resolveData } from "dill-core";
-import { appendTemplate } from "../create/append-template";
+
+import { mapTemplateToElement } from "../template/map-template-to-element";
 
 export const renderTemplate = template => {
-    const newChildren = resolveData(template.data,template.template.value);
+    let newChildren = resolveData(template.data,template.dill_template.value);
 
-    // console.log("PreNew: ", template.element, template.template.template.children, newChildren);
+    if (!(newChildren instanceof Array)) {
+        newChildren = [newChildren];
+    }
 
-    if (
-        newChildren instanceof Array
-        && (template.template.template.children.length !== newChildren.length
+// Check that the new values provided are indeed differenet.
+// This prevents re rendering when not needed and is better for performance.
+    if (template.dill_template.dillXTemplate.children.length !== newChildren.length
         || !newChildren.reduce((a,b,i)=>{
-
-            // console.log("Monitor 1: ", a, b, template.template.template.children[i], b === template.template.template.children[i]);
-
             if (!a) {
                 return false;
             }
-            if (b!==template.template.template.children[i]) {
+            if (b!==template.dill_template.dillXTemplate.children[i]) {
                 return false;
             }
             return true;
-
-            // return !a?a:b!==template.template.template.children[i]?false:true;
         }
-        ,true))
+        ,true)
     ) {
-        // console.log("It was different!");
 
-        template.template.template.children.length = 0;
+// The template contains the child templates that are going to be rendered after this function.
+// Here we preserve the Object (Array) where these child templates are stored and just change the values.
+// This prevents reference conflicts.
+// DO NOT DO THIS: template.dill_template.dillXTemplate.children = newChildren;
+        template.dill_template.dillXTemplate.children.length = 0;
         newChildren.forEach(x=>{
-            template.template.template.children.push(x);
+            template.dill_template.dillXTemplate.children.push(x);
         });
 
         reverseForEach(template.element.childNodes,x=>template.element.removeChild(x));
 
-        template.childTemplates = template.template.template.children
-            ? [...template.template.template.children].reverse().map(x=>appendTemplate(template,template.element,template.data,x))
-            : null;
+        template.childTemplates.length = 0;
+        template.dill_template.dillXTemplate.children
+            && [...template.dill_template.dillXTemplate.children]
+            .reverse()
+            .map(x=>mapTemplateToElement(template,template.element,template.data,x))
+            .forEach(each => {
+                template.childTemplates.push(each);
+            });
     }
 }
